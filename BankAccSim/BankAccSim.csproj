@@ -17,4 +17,16 @@
       <PackageReference Include="NSwag.AspNetCore" Version="14.7.1" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="BankAccSim.Tests\" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Remove="BankAccSim.Tests/**" />
+    </ItemGroup>
+    <PropertyGroup>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <NoWarn>$(NoWarn);1591</NoWarn>
+    </PropertyGroup>
+
 </Project>
