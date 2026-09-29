@@ -1,5 +1,6 @@
 using System.Text;
 using BankAccSim.Data;
+using BankAccSim.Exceptions;
 using BankAccSim.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +14,10 @@ var jwtKey = builder.Configuration["Jwt:Key"]
     ?? throw new InvalidOperationException("Jwt:Key is not configured (use user-secrets or the Jwt__Key env var).");
 
 builder.Services.AddControllers();
+
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -53,6 +58,9 @@ builder.Services.AddOpenApiDocument(config =>
 });
 
 var app = builder.Build();
+
+app.UseExceptionHandler();
+app.UseStatusCodePages();
 
 if (app.Environment.IsDevelopment())
 {
