@@ -23,6 +23,6 @@ public class LoginRequest
     public string Password { get; set; } = string.Empty;
 }
 
-public record RegisterResponse(int Id, string Name, string Email);
+public record RegisterResponse(int Id, string Name, string Email, string AccountNumber);
 
 public record AuthResponse(string Token, DateTime ExpiresAt);
