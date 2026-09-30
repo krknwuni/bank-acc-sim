@@ -1,0 +1,6 @@
+**/bin
+**/obj
+BankAccSim.Tests
+.git
+.vs
+*.md

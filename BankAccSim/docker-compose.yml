@@ -1,0 +1,30 @@
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: BankSimDb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d BankSimDb"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Host=db;Port=5432;Database=BankSimDb;Username=postgres;Password=postgres
+      Jwt__Key: docker-demo-secret-key-change-me-0123456789-abcdef-ghijkl
+      Database__MigrateOnStartup: "true"
+    ports:
+      - "8080:8080"
+
+volumes:
+  pgdata:

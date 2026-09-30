@@ -46,4 +46,11 @@ public class AccountController(IAccountService accounts) : ControllerBase
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> Withdraw(MoneyRequest request)
         => Ok(await accounts.WithdrawAsync(CustomerId, request));
+
+    // "200" -> A page of transactions.</response>
+    [HttpGet("transactions")]
+    [ProducesResponseType<PagedResponse<TransactionResponse>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetTransactions([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+        => Ok(await accounts.GetTransactionsAsync(CustomerId, page, pageSize));
 }

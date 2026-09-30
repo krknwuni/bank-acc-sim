@@ -14,3 +14,7 @@ public class MoneyRequest
 public record BalanceResponse(string AccountNumber, string Currency, decimal Balance);
 
 public record OperationResponse(int TransactionId, string Type, decimal Amount, decimal NewBalance, DateTime CreatedAt);
+
+public record TransactionResponse(int Id, string Type, decimal Amount, string Description, DateTime CreatedAt);
+
+public record PagedResponse<T>(int Page, int PageSize, int TotalCount, IReadOnlyList<T> Items);

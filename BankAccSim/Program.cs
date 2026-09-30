@@ -59,6 +59,12 @@ builder.Services.AddOpenApiDocument(config =>
 
 var app = builder.Build();
 
+if (app.Configuration.GetValue<bool>("Database:MigrateOnStartup"))
+{
+    using var scope = app.Services.CreateScope();
+    scope.ServiceProvider.GetRequiredService<AppDbContext>().Database.Migrate();
+}
+
 app.UseExceptionHandler();
 app.UseStatusCodePages();
 

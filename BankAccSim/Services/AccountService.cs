@@ -12,6 +12,7 @@ public interface IAccountService
     Task<BalanceResponse> GetBalanceAsync(int customerId, CancellationToken ct = default);
     Task<OperationResponse> DepositAsync(int customerId, MoneyRequest request, CancellationToken ct = default);
     Task<OperationResponse> WithdrawAsync(int customerId, MoneyRequest request, CancellationToken ct = default);
+    Task<PagedResponse<TransactionResponse>> GetTransactionsAsync(int customerId, int page, int pageSize, CancellationToken ct = default);
 }
 
 public class AccountService(AppDbContext db) : IAccountService
@@ -30,6 +31,29 @@ public class AccountService(AppDbContext db) : IAccountService
 
     public Task<OperationResponse> WithdrawAsync(int customerId, MoneyRequest request, CancellationToken ct = default)
         => ApplyAsync(customerId, request, TransactionType.Withdrawal, ct);
+
+    public async Task<PagedResponse<TransactionResponse>> GetTransactionsAsync(
+        int customerId, int page, int pageSize, CancellationToken ct = default)
+    {
+        page = Math.Max(page, 1);
+        pageSize = Math.Clamp(pageSize, 1, 100);
+
+        var account = await GetAccountAsync(customerId, ct);
+        var query = db.Transactions.Where(t => t.AccountId == account.Id);
+
+        var total = await query.CountAsync(ct);
+        var rows = await query
+            .OrderByDescending(t => t.CreatedAt).ThenByDescending(t => t.Id) 
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(ct);
+
+        var items = rows
+            .Select(t => new TransactionResponse(t.Id, t.Type.ToString(), t.Amount, t.Description, t.CreatedAt))
+            .ToList();
+
+        return new PagedResponse<TransactionResponse>(page, pageSize, total, items);
+    }
 
     private async Task<OperationResponse> ApplyAsync(
         int customerId, MoneyRequest request, TransactionType type, CancellationToken ct)
